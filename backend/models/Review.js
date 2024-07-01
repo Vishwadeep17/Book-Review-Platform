@@ -9,6 +9,10 @@ const reviewSchema = mongoose.Schema({
     book_id: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Book', // Reference to the Book schema
+        // required: true,
+    },
+    edition_key: {
+        type: String,
         required: true,
     },
     rating: {

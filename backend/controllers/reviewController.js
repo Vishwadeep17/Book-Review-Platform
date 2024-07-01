@@ -1,18 +1,24 @@
+const { default: mongoose } = require('mongoose');
 const Review = require('../models/Review');
+const Book = require('../models/Book');
 
 // Create a new review
 const createReview = async (req, res) => {
-    const { book_id, rating, comment } = req.body;
+    const { edition_key, rating, comment } = req.body;
+    const book = await Book.find({'edition_key':edition_key}).exec();
+    console.log(book);
     try {
         const review = new Review({
             user: req.user.id,
-            book_id,
+            book_id: book._id,
+            edition_key,
             rating,
             comment,
         });
         await review.save();
         res.status(201).json(review);
     } catch (error) {
+        console.log(error);
         res.status(500).json({ error: error.message });
     }
 };
@@ -80,7 +86,7 @@ const deleteReview = async (req, res) => {
         if (review.user.toString() !== req.user.id) {
             return res.status(401).json({ error: 'Not authorized' });
         }
-        await review.remove();
+        await Review.deleteOne(review);
         res.status(204).json({ message: 'Review removed' });
     } catch (error) {
         res.status(500).json({ error: error.message });

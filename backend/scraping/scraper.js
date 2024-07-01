@@ -1,6 +1,7 @@
 const axios = require('axios');
 const cheerio = require('cheerio');
 const Book = require('../models/Book');
+const { default: mongoose } = require('mongoose');
 
 const scrapeBooks = async () => {
     try {
@@ -17,17 +18,17 @@ const scrapeBooks = async () => {
     
         for (const book of books) {
           // Extract the relevant information
-          const book_id = book.cover_edition_key; // Adjust the field based on your data
+          const edition_key = book.cover_edition_key; // Adjust the field based on your data
           const title = book.title;
           const author = book.author_name ? book.author_name.join(', ') : 'Unknown';
     
           // Debug: Print each book's info
-          // console.log({ book_id, title, author });
+          // console.log({ edition_key, title, author });
     
           // Update or create book in the database
           await Book.findOneAndUpdate(
-            { book_id: book_id },
-            { book_id, title, author },
+            { edition_key: edition_key },
+            { edition_key, title, author },
             { upsert: true, new: true }
           );
         }

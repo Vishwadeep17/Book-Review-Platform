@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import axiosInstance from "../AxiosInstance"; 
 import axios from "axios";
 
 const Reviews = () => {
@@ -9,6 +8,11 @@ const Reviews = () => {
   const [comment, setComment] = useState('');
   const [editingReviewId, setEditingReviewId] = useState(null);
   const [error, setError] = useState(null);
+
+  const token = localStorage.getItem('token');
+  const config = {
+    headers: {Authorization: `Bearer ${token}`}
+  };
 
   useEffect(() => {
     fetchReviews();
@@ -26,7 +30,7 @@ const Reviews = () => {
   const handleCreateReview = async (e) => {
     e.preventDefault();
     try {
-      const res = await axiosInstance.post(`${process.env.REACT_APP_BACKEND}/api/reviews`, { book_id: bookId, rating, comment });
+      const res = await axios.post(`${process.env.REACT_APP_BACKEND}/api/reviews`, { edition_key: bookId, rating, comment });
       setReviews([...reviews, res.data]);
       setBookId('');
       setRating(1);
@@ -38,7 +42,7 @@ const Reviews = () => {
 
   const handleDeleteReview = async (id) => {
     try {
-      await axios.delete(`${process.env.REACT_APP_BACKEND}/api/reviews/${id}`);
+      await axios.delete(`${process.env.REACT_APP_BACKEND}/api/reviews/${id}`, config);
       setReviews(reviews.filter((review) => review._id !== id));
     } catch (error) {
       console.error('Error deleting review:', error);
@@ -49,7 +53,7 @@ const Reviews = () => {
     const reviewToEdit = reviews.find((review) => review._id === id);
     if (reviewToEdit) {
       setEditingReviewId(id);
-      setBookId(reviewToEdit.book_id);
+      setBookId(reviewToEdit.edition_key);
       setRating(reviewToEdit.rating);
       setComment(reviewToEdit.comment);
     }
@@ -58,7 +62,7 @@ const Reviews = () => {
   const handleUpdateReview = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.put(`${process.env.REACT_APP_BACKEND}/api/reviews/${editingReviewId}`, { rating, comment });
+      const res = await axios.put(`${process.env.REACT_APP_BACKEND}/api/reviews/${editingReviewId}`, { rating, comment }, config);
       setReviews(reviews.map((review) => (review._id === editingReviewId ? res.data : review)));
       setEditingReviewId(null);
       setBookId('');
@@ -84,7 +88,7 @@ const Reviews = () => {
       <form onSubmit={editingReviewId ? handleUpdateReview : handleCreateReview}>
         <input
           type="text"
-          placeholder="Book ID"
+          placeholder="Edition Key"
           value={bookId}
           onChange={(e) => setBookId(e.target.value)}
           required
@@ -111,7 +115,7 @@ const Reviews = () => {
       <ul>
         {reviews.map((review) => (
           <li key={review._id}>
-            <p>Book ID: {review.book_id}</p>
+            <p>Edition Key: {review.edition_key}</p>
             <p>Rating: {review.rating}</p>
             <p>Comment: {review.comment}</p>
             <button onClick={() => handleEditReview(review._id)}>Edit</button>
