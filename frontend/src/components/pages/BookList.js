@@ -23,7 +23,7 @@
         <ul>
             {books.map((book) => (
             <li key={book._id}>
-                <strong>{book.title}</strong> by {book.author}
+                <strong>{book.title}</strong> by {book.author} with Key Editin - {book.edition_key}
                 <p>{book.description}</p>
             </li>
             ))}
