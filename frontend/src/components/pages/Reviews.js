@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import axios from "axios";
+import './Home.css';  // Import the CSS file
 
 const Reviews = () => {
   const [reviews, setReviews] = useState([]);
@@ -82,7 +84,10 @@ const Reviews = () => {
 
   return (
     <div>
-      <h1>Reviews</h1>
+      <div className="reviews-header">
+        <h1>Reviews</h1>
+        <Link to="/books">Books</Link>
+      </div>
       {error && <p style={{ color: 'red' }}>{error}</p>}
       <h2>Create Review</h2>
       <form onSubmit={editingReviewId ? handleUpdateReview : handleCreateReview}>
