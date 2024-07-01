@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import axiosInstance from "../AxiosInstance"; 
 import axios from "axios";
 
 const Reviews = () => {
@@ -15,17 +16,17 @@ const Reviews = () => {
 
   const fetchReviews = async () => {
     try {
-      const res = await axios.get('/api/reviews');
+      const res = await axios.get(`${process.env.REACT_APP_BACKEND}/api/reviews`);
       setReviews(res.data.reviews);
     } catch (error) {
-      console.error(error);
+      console.error('Error fetching reviews:', error);
     }
   };
 
   const handleCreateReview = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post('/api/reviews', { book_id: bookId, rating, comment });
+      const res = await axiosInstance.post(`${process.env.REACT_APP_BACKEND}/api/reviews`, { book_id: bookId, rating, comment });
       setReviews([...reviews, res.data]);
       setBookId('');
       setRating(1);
@@ -37,10 +38,10 @@ const Reviews = () => {
 
   const handleDeleteReview = async (id) => {
     try {
-      await axios.delete(`/api/reviews/${id}`);
+      await axios.delete(`${process.env.REACT_APP_BACKEND}/api/reviews/${id}`);
       setReviews(reviews.filter((review) => review._id !== id));
     } catch (error) {
-      console.error(error);
+      console.error('Error deleting review:', error);
     }
   };
 
@@ -57,7 +58,7 @@ const Reviews = () => {
   const handleUpdateReview = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.put(`/api/reviews/${editingReviewId}`, { rating, comment });
+      const res = await axios.put(`${process.env.REACT_APP_BACKEND}/api/reviews/${editingReviewId}`, { rating, comment });
       setReviews(reviews.map((review) => (review._id === editingReviewId ? res.data : review)));
       setEditingReviewId(null);
       setBookId('');

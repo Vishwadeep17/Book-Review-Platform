@@ -4,28 +4,38 @@ const Book = require('../models/Book');
 
 const scrapeBooks = async () => {
     try {
-        const { data } = await axios.get('https://openlibrary.org/trending/daily');
-        const $ = cheerio.load(data);
 
-        const books = [];
-
-        $('.bookcover').each((index, element) => {
-            const book_id = $(element).attr('data-olid');
-            const title = $(element).attr('title');
-            const cover_url = $(element).find('img').attr('src');
-            books.push({ book_id, title, cover_url });
-        });
-
-        for (let book of books) {
-            await Book.updateOne(
-                { book_id: book.book_id },
-                { ...book },
-                { upsert: true }
-            );
+        const response = await axios.get('https://openlibrary.org/trending/daily');
+        const data = response.data;
+    
+        const books = data.works || [];
+    
+        if (books.length === 0) {
+          console.log('No books found.');
+          return;
         }
-    } catch (error) {
-        console.error(error);
-    }
+    
+        for (const book of books) {
+          // Extract the relevant information
+          const book_id = book.cover_edition_key; // Adjust the field based on your data
+          const title = book.title;
+          const author = book.author_name ? book.author_name.join(', ') : 'Unknown';
+    
+          // Debug: Print each book's info
+          // console.log({ book_id, title, author });
+    
+          // Update or create book in the database
+          await Book.findOneAndUpdate(
+            { book_id: book_id },
+            { book_id, title, author },
+            { upsert: true, new: true }
+          );
+        }
+    
+        console.log('Trending books updated successfully');
+      } catch (error) {
+        console.error('Error fetching trending books:', error);
+      }
 };
 
 module.exports = scrapeBooks;

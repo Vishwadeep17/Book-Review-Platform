@@ -1,10 +1,14 @@
 import React from 'react';
-import { Navigate, Outlet } from 'react-router-dom';
+import { Route, Navigate } from 'react-router-dom';
 
-const PrivateRoute = ({ children }) => {
+const PrivateRoute = ({ element: Component, ...rest }) => {
   const isAuthenticated = !!localStorage.getItem('token'); // Check if token exists in local storage
 
-  return isAuthenticated ? children : <Navigate to="/login" />;
+  return isAuthenticated ? (
+    <Route {...rest} element={<Component />} />
+  ) : (
+    <Navigate to="/login" replace />
+  );
 };
 
 export default PrivateRoute;
